@@ -1,0 +1,10 @@
+{
+  "name": "bullethell",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Nick Nauert <nicknauert@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "pixi.js": "^4.6.1"
+  }
+}
