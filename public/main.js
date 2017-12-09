@@ -2,7 +2,8 @@
 const   Application = PIXI.Application,
         loader = PIXI.loader,
         resources = PIXI.loader.resources,
-        TextureCache = PIXI.utils.TextureCache
+        TextureCache = PIXI.utils.TextureCache,
+        Container = PIXI.Container
         Sprite = PIXI.Sprite;
 
 
@@ -21,7 +22,7 @@ app.renderer.autoResize = true;
 loader
     .add('images/spaceship.png')
     .add('images/spacebg.gif')
-    .add('images/spaceSprites.png')
+    .add('images/ufo.png')
     .on('progress', loadBarHandler)
     .load(setup)
 
@@ -31,6 +32,8 @@ function loadBarHandler(loader, resource){
 }
 
 let player, state;
+let frameCount = 0;
+let ufos = [];
 
 ////////////////////
 // General Setup
@@ -43,6 +46,33 @@ function setup(){
     const bg = new Sprite(
         loader.resources['images/spacebg.gif'].texture
     )
+    
+    // Enemies Setup
+    const baddies = new Container();
+    let numberOfUfos = 6,
+        spacing = 100,
+        xOffset = 100,
+        speed = .25,
+        direction = 1;
+
+    for(i = 0; i <= numberOfUfos; i++){
+        const ufo = new Sprite(
+            loader.resources['images/ufo.png'].texture
+        )
+        
+        let x = spacing * i + xOffset
+        let y = 100;
+        
+        ufo.vx = speed * direction
+        
+        ufo.scale.set(.2)
+        ufo.x = x;
+        ufo.y = y;
+        
+        direction *= -1;
+        ufos.push(ufo);
+        baddies.addChild(ufo);
+    }
 
     // Movement
     let left = keyboard(37),
@@ -108,21 +138,38 @@ function setup(){
     bg.anchor.set(0.5);
     bg.x = app.renderer.width / 2;
     bg.y = app.renderer.height / 2;
-    bg.scale.set(3);
+    bg.scale.set(4);
 
     app.stage.addChild(bg);
     app.stage.addChild(player);
+    app.stage.addChild(baddies);
 
     app.ticker.add( delta => gameLoop(delta));
+    app.ticker.add( delta =>  frameCounterFunction(delta));
 }
+
 
 function gameLoop(delta){
     player.x += player.vx
     player.y += player.vy
 
+    ufos.forEach( ufo => {
+        if ( frameCount === 29 ){
+            ufo.vx *= -1;
+        }
+        ufo.x += ufo.vx;
+    })
+
+
 }
 
 
+function frameCounterFunction(delta){
+    frameCount ++;
+    if(frameCount >= 30 ){
+        frameCount = 0
+    }
+}
 
 
 ////////////////////
