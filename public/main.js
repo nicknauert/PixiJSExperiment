@@ -34,6 +34,7 @@ function loadBarHandler(loader, resource){
 let player, state;
 let frameCount = 0;
 let ufos = [];
+const baddies = new Container();
 
 ////////////////////
 // General Setup
@@ -48,10 +49,9 @@ function setup(){
     )
     
     // Enemies Setup
-    const baddies = new Container();
+    
     let numberOfUfos = 6,
         spacing = 100,
-        xOffset = 100,
         speed = .25,
         direction = 1;
 
@@ -60,7 +60,7 @@ function setup(){
             loader.resources['images/ufo.png'].texture
         )
         
-        let x = spacing * i + xOffset
+        let x = spacing * i
         let y = 100;
         
         ufo.vx = speed * direction
@@ -130,7 +130,7 @@ function setup(){
 
     player.anchor.set(0.5);
     player.x = app.renderer.width / 2;
-    player.y = app.renderer.height / 2;
+    player.y = app.renderer.height - 100;
     player.vx = 0;
     player.vy = 0;
     player.scale.set(.15);
@@ -140,6 +140,9 @@ function setup(){
     bg.y = app.renderer.height / 2;
     bg.scale.set(4);
 
+    baddies.x = (width / 2) - (baddies.width / 2);
+    baddies.vx = 1;
+
     app.stage.addChild(bg);
     app.stage.addChild(player);
     app.stage.addChild(baddies);
@@ -148,25 +151,26 @@ function setup(){
     app.ticker.add( delta =>  frameCounterFunction(delta));
 }
 
-
 function gameLoop(delta){
     player.x += player.vx
     player.y += player.vy
+    baddies.x += baddies.vx;
 
     ufos.forEach( ufo => {
-        if ( frameCount === 29 ){
+        if ( frameCount % 30 === 0 ){
             ufo.vx *= -1;
         }
         ufo.x += ufo.vx;
     })
-
-
+    if (frameCount === 89){
+        baddies.vx *= -1;
+    }
 }
 
 
 function frameCounterFunction(delta){
     frameCount ++;
-    if(frameCount >= 30 ){
+    if(frameCount >= 90 ){
         frameCount = 0
     }
 }
