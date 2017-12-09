@@ -32,7 +32,7 @@ function loadBarHandler(loader, resource){
     console.log("progress: " + loader.progress + '%')
 }
 
-let player, state, laser;
+let player, state, laser, laserSheet;
 let rectangle;
 let frameCount = 0;
 let ufos = [];
@@ -50,7 +50,7 @@ function setup(){
         loader.resources['images/spacebg.gif'].texture
     )
     
-    const laserSheet = TextureCache['images/laser.png']
+    laserSheet = TextureCache['images/laser.png']
     rectangle = new PIXI.Rectangle( 0, 0, laserSheet.width, laserSheet.height / 11)
     laserSheet.frame = rectangle;
     laser = new Sprite(laserSheet);
@@ -193,8 +193,10 @@ function gameLoop(delta){
     // Update Laser sprite sheet frame position
     if ( rectangle.y < 1280 ){
         rectangle.y += rectangle.height
+        laserSheet.frame = rectangle;
     } else {
         rectangle.y = 0;
+        laserSheet.frame = rectangle;
     }
 
 
