@@ -30,16 +30,13 @@ function loadBarHandler(loader, resource){
     console.log("progress: " + loader.progress + '%')
 }
 
-let player;
+let player, state;
 
 ////////////////////
 // General Setup
 function setup(){
     
     // Sprites
-    const sheet = new Sprite(
-        loader.resources['images/spaceSprites.png'].texture
-    )
     player = new Sprite(
         loader.resources['images/spaceship.png'].texture
     )
@@ -66,39 +63,7 @@ function setup(){
 }
 
 function gameLoop(delta){
-    // Movement
-    window.addEventListener('keydown', (e) => {
-        if( e.keyCode === 37){
-            moveLeft();
-        }
-        if( e.keyCode === 38){
-            moveUp();
-        }
-        if( e.keyCode === 39){
-            moveRight();
-        }
-        if( e.keyCode === 40){
-            moveDown();
-        }
-        if( e.keyCode === 32){
-            changeSomething();
-        }
-    })
-
-    window.addEventListener('keyup', (e) => {
-        if( e.keyCode === 37){
-            player.vx = 0;
-            player.vy = 0;
-        }
-    })
-
-    function moveLeft(e){   player.vx -= 1 }
-    function moveRight(e){  player.vx += 1 }
-    function moveUp(e){     player.vy -= 1 }
-    function moveDown(e){   player.vy += 1 }
-
-    player.x += player.vx;
-    player.y += player.vy;
+    
 
 }
 
@@ -116,6 +81,43 @@ function radToDegrees( radian ){
 // Degrees -> Radian
 function degreesToRadians( degrees ){
     return degrees * ( Math.PI / 180 );
+}
+
+function keyboard(keyCode){
+    let key = {};
+    key.code = keyCode;
+    key.isDown = false;
+    key.isUp = true;
+    key.press = undefined;
+    key.release = undefined;
+    //downHandler
+    key.downHandler = event => {
+        if(event.keyCode === key.code){
+            if(key.isUp && key.press) key.press();
+            key.isDown = true;
+            key.isUp = false;
+        }
+        event.preventDefault();
+    };
+
+    //upHandler
+    key.upHandler = event => {
+        if(event.keyCode === key.code){
+            if(key.isDown && key.release) key.release();
+            key.isDown = false;
+            key.isUp = true;
+        }
+        event.preventDefault();
+    };
+
+    //Attach event listeners
+    window.addEventListener(
+        'keydown', key.downHandler.bind(key), false
+    )
+    window.addEventListener(
+        'keyup', key.upHandler.bind(key), false
+    )
+    return key;
 }
 
 
