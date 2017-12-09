@@ -46,17 +46,15 @@ function setup(){
     player = new Sprite(
         loader.resources['images/spaceship.png'].texture
     )
-    const laserSheet = new Sprite(
-        loader.resources['images/laser.png'].texture //512 × 1408
-    )
-    rectangle = new PIXI.Rectangle( 0, 0, laserSheet.width, laserSheet.height / 11)
-    laserSheet.frame = rectangle;
-    laser = new Sprite(laserSheet)
-
     const bg = new Sprite(
         loader.resources['images/spacebg.gif'].texture
     )
     
+    const laserSheet = TextureCache['images/laser.png']
+    rectangle = new PIXI.Rectangle( 0, 0, laserSheet.width, laserSheet.height / 11)
+    laserSheet.frame = rectangle;
+    laser = new Sprite(laserSheet);
+
     // Enemies Setup
     let numberOfUfos = 6,
         spacing = 100,
@@ -189,12 +187,18 @@ function gameLoop(delta){
     }
 
     // Update Laser position to match player position
-    laser.x = player.x;
+    laser.x = player.x - 69;
     laser.y = player.y;
+
+    // Update Laser sprite sheet frame position
+    if ( rectangle.y < 1280 ){
+        rectangle.y += rectangle.height
+    } else {
+        rectangle.y = 0;
+    }
 
 
 }
-
 
 function frameCounterFunction(delta){
     frameCount ++;
@@ -202,7 +206,6 @@ function frameCounterFunction(delta){
         frameCount = 0
     }
 }
-
 
 ////////////////////
 // Helper functions
