@@ -44,6 +44,60 @@ function setup(){
         loader.resources['images/spacebg.gif'].texture
     )
 
+    // Movement
+    let left = keyboard(37),
+        up = keyboard(38),
+        right = keyboard(39),
+        down = keyboard(40);
+
+    left.press = () => {
+        if(!right.isDown){
+            player.vx = -3;
+        }
+    }
+
+    left.release = () => {
+        if(!right.isDown){
+            player.vx = 0;
+        }
+    }
+
+    right.press = () => {
+        if(!left.isDown){
+            player.vx = 3;
+        }
+    }
+
+    right.release = () => {
+        if(!left.isDown){
+            player.vx = 0;
+        }
+    }
+
+    up.press = () => {
+        if(!down.isDown){
+            player.vy = -3;
+        }
+    }
+
+    up.release = () => {
+        if(!down.isDown){
+            player.vy = 0;
+        }
+    }
+
+    down.press = () => {
+        if(!up.isDown){
+            player.vy = 3;
+        }
+    }
+
+    down.release = () => {
+        if(!up.isDown){
+            player.vy = 0;
+        }
+    }
+
     player.anchor.set(0.5);
     player.x = app.renderer.width / 2;
     player.y = app.renderer.height / 2;
@@ -63,7 +117,8 @@ function setup(){
 }
 
 function gameLoop(delta){
-    
+    player.x += player.vx
+    player.y += player.vy
 
 }
 
