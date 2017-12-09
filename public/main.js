@@ -33,6 +33,7 @@ function loadBarHandler(loader, resource){
 }
 
 let player, state, laser;
+let rectangle;
 let frameCount = 0;
 let ufos = [];
 const baddies = new Container();
@@ -45,9 +46,13 @@ function setup(){
     player = new Sprite(
         loader.resources['images/spaceship.png'].texture
     )
-    laser = new Sprite(
-        loader.resources['images/laser.png'].texture
+    const laserSheet = new Sprite(
+        loader.resources['images/laser.png'].texture //512 × 1408
     )
+    rectangle = new PIXI.Rectangle( 0, 0, laserSheet.width, laserSheet.height / 11)
+    laserSheet.frame = rectangle;
+    laser = new Sprite(laserSheet)
+
     const bg = new Sprite(
         loader.resources['images/spacebg.gif'].texture
     )
@@ -134,6 +139,7 @@ function setup(){
         laser.rotation = degreesToRadians(-90);
         app.stage.addChild(laser);
     }
+
     spaceKey.release = () => {
         app.stage.removeChild(laser);
     }
