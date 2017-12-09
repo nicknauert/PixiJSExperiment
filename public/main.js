@@ -23,6 +23,7 @@ loader
     .add('images/spaceship.png')
     .add('images/spacebg.gif')
     .add('images/ufo.png')
+    .add('images/laser.png')
     .on('progress', loadBarHandler)
     .load(setup)
 
@@ -31,7 +32,7 @@ function loadBarHandler(loader, resource){
     console.log("progress: " + loader.progress + '%')
 }
 
-let player, state;
+let player, state, laser;
 let frameCount = 0;
 let ufos = [];
 const baddies = new Container();
@@ -44,12 +45,14 @@ function setup(){
     player = new Sprite(
         loader.resources['images/spaceship.png'].texture
     )
+    laser = new Sprite(
+        loader.resources['images/laser.png'].texture
+    )
     const bg = new Sprite(
         loader.resources['images/spacebg.gif'].texture
     )
     
     // Enemies Setup
-    
     let numberOfUfos = 6,
         spacing = 100,
         speed = .25,
@@ -59,12 +62,10 @@ function setup(){
         const ufo = new Sprite(
             loader.resources['images/ufo.png'].texture
         )
-        
         let x = spacing * i
         let y = 100;
         
         ufo.vx = speed * direction
-        
         ufo.scale.set(.2)
         ufo.x = x;
         ufo.y = y;
@@ -78,7 +79,8 @@ function setup(){
     let left = keyboard(37),
         up = keyboard(38),
         right = keyboard(39),
-        down = keyboard(40);
+        down = keyboard(40),
+        spaceKey = keyboard(32);
 
     left.press = () => {
         if(!right.isDown){
@@ -128,6 +130,16 @@ function setup(){
         }
     }
 
+    spaceKey.press = () => {
+        laser.rotation = degreesToRadians(-90);
+        app.stage.addChild(laser);
+    }
+    spaceKey.release = () => {
+        app.stage.removeChild(laser);
+    }
+
+
+
     player.anchor.set(0.5);
     player.x = app.renderer.width / 2;
     player.y = app.renderer.height - 100;
@@ -152,19 +164,29 @@ function setup(){
 }
 
 function gameLoop(delta){
+    // Movement updates
     player.x += player.vx
     player.y += player.vy
     baddies.x += baddies.vx;
 
+    // Set individual UFO position inside of container
     ufos.forEach( ufo => {
         if ( frameCount % 30 === 0 ){
             ufo.vx *= -1;
         }
         ufo.x += ufo.vx;
     })
+
+    // Move UFOS container around as a whole
     if (frameCount === 89){
         baddies.vx *= -1;
     }
+
+    // Update Laser position to match player position
+    laser.x = player.x;
+    laser.y = player.y;
+
+
 }
 
 
