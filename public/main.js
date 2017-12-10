@@ -7,8 +7,9 @@ const   Application = PIXI.Application,
         Sprite = PIXI.Sprite;
 
 
-////////////////////
+///////////////////////////////////
 // Renderer Setup
+///////////////////////////////////
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -16,8 +17,9 @@ const app = new Application( width, height, { backgroundColor: 0x262a31})
 document.body.appendChild(app.view);
 app.renderer.autoResize = true;
 
-////////////////////
+///////////////////////////////////
 // Resource Loader
+///////////////////////////////////
 
 loader
     .add('images/spaceship.png')
@@ -38,8 +40,9 @@ let frameCount = 0;
 let ufos = [];
 const baddies = new Container();
 
-////////////////////
-// General Setup
+////////////////////////////////////
+// General Setup to run once loader is finished
+///////////////////////////////////
 function setup(){
     
     // Sprites
@@ -209,8 +212,9 @@ function frameCounterFunction(delta){
     }
 }
 
-////////////////////
+///////////////////////////////////
 // Helper functions
+///////////////////////////////////
 
 // Radian -> Degrees
 function radToDegrees( radian ){
@@ -257,6 +261,18 @@ function keyboard(keyCode){
         'keyup', key.upHandler.bind(key), false
     )
     return key;
+}
+
+function hitTestRectangle( r1, r2) {
+    let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+
+    hit = false;
+
+    r1.centerX = r1.x + r1.width / 2;
+    r1.centerY = r1.y + r1.height / 2;
+    r2.centerX = r2.x + r2.width / 2;
+    r2.centerY = r2.y + r2.height / 2;
+
 }
 
 
