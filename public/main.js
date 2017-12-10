@@ -40,6 +40,12 @@ let frameCount = 0;
 let ufos = [];
 const baddies = new Container();
 
+let left = keyboard(37),
+    up = keyboard(38),
+    right = keyboard(39),
+    down = keyboard(40),
+    spaceKey = keyboard(32);
+
 ////////////////////////////////////
 // General Setup to run once loader is finished
 ///////////////////////////////////
@@ -82,11 +88,7 @@ function setup(){
     }
 
     // Movement
-    let left = keyboard(37),
-        up = keyboard(38),
-        right = keyboard(39),
-        down = keyboard(40),
-        spaceKey = keyboard(32);
+    
 
     left.press = () => {
         if(!right.isDown){
@@ -178,32 +180,44 @@ function gameLoop(delta){
 
     // Set individual UFO position inside of container
     ufos.forEach( ufo => {
-        if ( frameCount % 30 === 0 ){
+        if (frameCount % 30 === 0){
             ufo.vx *= -1;
         }
         ufo.x += ufo.vx;
+        if(app.stage.children.indexOf(laser) > -1){
+            if(boxesIntersect(ufo, laser)){
+                destroyUfo(ufo);
+            }
+        }
+        
     })
 
     // Move UFOS container around as a whole
     if (frameCount === 89){
         baddies.vx *= -1;
     }
-
     // Update Laser position to match player position
-    laser.x = player.x - 69;
-    laser.y = player.y;
+    if(laser){
+        laser.x = player.x - 69;
+        laser.y = player.y;
 
-    // Update Laser sprite sheet frame position
-    if ( rectangle.y < 1280 ){
-        rectangle.y += rectangle.height
-        laserSheet.frame = rectangle;
-    } else {
-        rectangle.y = 0;
-        laserSheet.frame = rectangle;
+        // Update Laser sprite sheet frame position
+        if ( rectangle.y < 1280 ){
+            rectangle.y += rectangle.height
+            laserSheet.frame = rectangle;
+        } else {
+            rectangle.y = 0;
+            laserSheet.frame = rectangle;
+        }
     }
+    
 
-
+    
 }
+
+///////////////////////////////////
+// Helper functions
+///////////////////////////////////
 
 function frameCounterFunction(delta){
     frameCount ++;
@@ -211,10 +225,6 @@ function frameCounterFunction(delta){
         frameCount = 0
     }
 }
-
-///////////////////////////////////
-// Helper functions
-///////////////////////////////////
 
 // Radian -> Degrees
 function radToDegrees( radian ){
@@ -273,6 +283,40 @@ function hitTestRectangle( r1, r2) {
     r2.centerX = r2.x + r2.width / 2;
     r2.centerY = r2.y + r2.height / 2;
 
+    r1.halfWidth = r1.width / 2;
+    r1.halfHeight = r1.height / 2;
+    r2.halfWidth = r2.width / 2;
+    r2.halfHeight = r2.height / 2;
+
+    vx = r1.centerX - r2.centerX;
+    vy = r1.centerY - r2.centerY;
+
+    combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+    combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+
+    if (Math.abs(vx) < combinedHalfWidths) {
+
+        if (Math.abs(vy) < combinedHalfHeights) {
+            hit = true;
+
+        } else {
+            hit = false;
+        }
+    } else {
+        hit = false;
+
+    }
+    return hit;
+}
+
+function destroyUfo(ufo){
+    baddies.removeChild(ufo);
+}
+
+function boxesIntersect(a, b){
+  var ab = a.getBounds();
+  var bb = b.getBounds();
+  return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
 }
 
 
