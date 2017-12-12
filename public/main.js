@@ -138,26 +138,15 @@ function setup(){
     }
 
     spaceKey.press = () => {
+        app.ticker.remove(missileMovement);
         missile.x = player.x;
         missile.y = player.y - 50;
-        missile.vy = -1;
+        missile.vy = -3;
         app.stage.addChild(missile);
-        console.log(app.stage);
-        app.ticker.add(() => {
-            if(missileFrame.x != missileSheet / 2){
-                missileFrame.x += missileSheet.width / 2;
-                missileSheet.frame = missileFrame;
-            } else {
-                missileFrame.x -= missileSheet.width / 2;
-                missileSheet.frame = missileFrame;
-            }
-
-            missile.y += missile.vy;
-        })
+        app.ticker.add(missileMovement)
     }
 
     spaceKey.release = () => {
-        app.stage.removeChild(laser);
     }
 
     player.anchor.set(0.5);
@@ -195,8 +184,8 @@ function gameLoop(delta){
             ufo.vx *= -1;
         }
         ufo.x += ufo.vx;
-        if(app.stage.children.indexOf(laser) > -1){
-            if(boxesIntersect(ufo, laser)){
+        if(app.stage.children.indexOf(missile) > -1){
+            if(boxesIntersect(ufo, missile)){
                 destroyUfo(ufo);
             }
         }
@@ -320,5 +309,21 @@ function boxesIntersect(a, b){
     var ab = a.getBounds();
     var bb = b.getBounds();
     return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+}
+
+function missileMovement() {
+    if(missileFrame.x = 0){
+        missileFrame.x = 8;
+        missileSheet.frame = missileFrame;
+    } else {
+        missileFrame.x = 0;
+        missileSheet.frame = missileFrame;
+    }
+    missile.y += missile.vy;
+    if(missile.y < 0){
+        app.stage.removeChild(missile);
+        console.log(app.stage.children);
+        app.ticker.remove(missileMovement);
+    }
 }
 
