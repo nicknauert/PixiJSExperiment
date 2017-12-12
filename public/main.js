@@ -23,9 +23,10 @@ app.renderer.autoResize = true;
 
 loader
     .add('images/spaceship.png')
-    .add('images/spacebg.gif')
+    .add('images/spacebg.png')
     .add('images/ufo.png')
     .add('images/laser.png')
+    .add('images/missile.png')
     .on('progress', loadBarHandler)
     .load(setup)
 
@@ -34,8 +35,7 @@ function loadBarHandler(loader, resource){
     console.log("progress: " + loader.progress + '%')
 }
 
-let player, state, laser, laserSheet;
-let rectangle;
+let player, state, laser, laserSheet, missile, rectangle, missileFrame;
 let frameCount = 0;
 let ufos = [];
 const baddies = new Container();
@@ -50,19 +50,24 @@ let left = keyboard(37),
 // General Setup to run once loader is finished
 ///////////////////////////////////
 function setup(){
-    
     // Sprites
     player = new Sprite(
         loader.resources['images/spaceship.png'].texture
     )
     const bg = new Sprite(
-        loader.resources['images/spacebg.gif'].texture
+        loader.resources['images/spacebg.png'].texture
     )
+
+    missileSheet = TextureCache['images/missile.png'];
+    missileFrame = new PIXI.Rectangle( 0, 0, missileSheet.width / 2, missileSheet.height);
+    missileSheet.frame = missileFrame;
+    missile = new Sprite(missileSheet);
+    missile.scale.set(3);
     
-    laserSheet = TextureCache['images/laser.png']
-    rectangle = new PIXI.Rectangle( 0, 0, laserSheet.width, laserSheet.height / 11)
+    laserSheet = TextureCache['images/laser.png'];
+    rectangle = new PIXI.Rectangle( 0, 0, laserSheet.width, 128);
     laserSheet.frame = rectangle;
-    laser = new Sprite(laserSheet);
+    laser = new Sprite(laserSheet); 
 
     // Enemies Setup
     let numberOfUfos = 6,
@@ -88,12 +93,9 @@ function setup(){
     }
 
     // Movement
-    
-
     left.press = () => {
-        if(!right.isDown){
-            player.vx = -3;
-        }
+        right.release();
+        player.vx = -3;
     }
 
     left.release = () => {
@@ -103,9 +105,8 @@ function setup(){
     }
 
     right.press = () => {
-        if(!left.isDown){
-            player.vx = 3;
-        }
+        left.release();
+        player.vx = 3;
     }
 
     right.release = () => {
@@ -115,9 +116,8 @@ function setup(){
     }
 
     up.press = () => {
-        if(!down.isDown){
-            player.vy = -3;
-        }
+        down.release();
+        player.vy = -3;
     }
 
     up.release = () => {
@@ -127,9 +127,8 @@ function setup(){
     }
 
     down.press = () => {
-        if(!up.isDown){
-            player.vy = 3;
-        }
+        up.release();
+        player.vy = 3;
     }
 
     down.release = () => {
@@ -139,15 +138,27 @@ function setup(){
     }
 
     spaceKey.press = () => {
-        laser.rotation = degreesToRadians(-90);
-        app.stage.addChild(laser);
+        missile.x = player.x;
+        missile.y = player.y - 50;
+        missile.vy = -1;
+        app.stage.addChild(missile);
+        console.log(app.stage);
+        app.ticker.add(() => {
+            if(missileFrame.x != missileSheet / 2){
+                missileFrame.x += missileSheet.width / 2;
+                missileSheet.frame = missileFrame;
+            } else {
+                missileFrame.x -= missileSheet.width / 2;
+                missileSheet.frame = missileFrame;
+            }
+
+            missile.y += missile.vy;
+        })
     }
 
     spaceKey.release = () => {
         app.stage.removeChild(laser);
     }
-
-
 
     player.anchor.set(0.5);
     player.x = app.renderer.width / 2;
@@ -159,7 +170,7 @@ function setup(){
     bg.anchor.set(0.5);
     bg.x = app.renderer.width / 2;
     bg.y = app.renderer.height / 2;
-    bg.scale.set(4);
+    bg.scale.set(2);
 
     baddies.x = (width / 2) - (baddies.width / 2);
     baddies.vx = 1;
@@ -209,10 +220,7 @@ function gameLoop(delta){
             rectangle.y = 0;
             laserSheet.frame = rectangle;
         }
-    }
-    
-
-    
+    }  
 }
 
 ///////////////////////////////////
@@ -224,16 +232,16 @@ function frameCounterFunction(delta){
     if(frameCount >= 90 ){
         frameCount = 0
     }
-}
-
+  }
+  
 // Radian -> Degrees
 function radToDegrees( radian ){
-    return radian * ( 180 / Math.PI );
+return radian * ( 180 / Math.PI );
 }
 
 // Degrees -> Radian
 function degreesToRadians( degrees ){
-    return degrees * ( Math.PI / 180 );
+return degrees * ( Math.PI / 180 );
 }
 
 function keyboard(keyCode){
@@ -249,21 +257,21 @@ function keyboard(keyCode){
             if(key.isUp && key.press) key.press();
             key.isDown = true;
             key.isUp = false;
-        }
-        event.preventDefault();
-    };
+    }
+    event.preventDefault();
+};
 
-    //upHandler
-    key.upHandler = event => {
-        if(event.keyCode === key.code){
-            if(key.isDown && key.release) key.release();
-            key.isDown = false;
-            key.isUp = true;
-        }
-        event.preventDefault();
-    };
+//upHandler
+key.upHandler = event => {
+    if(event.keyCode === key.code){
+        if(key.isDown && key.release) key.release();
+        key.isDown = false;
+        key.isUp = true;
+    }
+    event.preventDefault();
+};
 
-    //Attach event listeners
+//Attach event listeners
     window.addEventListener(
         'keydown', key.downHandler.bind(key), false
     )
@@ -295,33 +303,22 @@ function hitTestRectangle( r1, r2) {
     combinedHalfHeights = r1.halfHeight + r2.halfHeight;
 
     if (Math.abs(vx) < combinedHalfWidths) {
-
         if (Math.abs(vy) < combinedHalfHeights) {
             hit = true;
-
         } else {
             hit = false;
         }
-    } else {
-        hit = false;
-
-    }
+        } else {
+            hit = false;
+        }
     return hit;
 }
 
-function destroyUfo(ufo){
-    baddies.removeChild(ufo);
-}
+function destroyUfo(ufo){ baddies.removeChild(ufo); }
 
 function boxesIntersect(a, b){
-  var ab = a.getBounds();
-  var bb = b.getBounds();
-  return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+    var ab = a.getBounds();
+    var bb = b.getBounds();
+    return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
 }
-
-
-
-
-
-
 
